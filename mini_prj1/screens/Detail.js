@@ -1,12 +1,19 @@
 import React from 'react';
-import { View, Text, Image, ScrollView, StyleSheet } from 'react-native';
-
+import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import * as Speech from 'expo-speech';
+import { Ionicons } from '@expo/vector-icons';
 const Detail = ({ route }) => {
   const { title, description, content, imageUrl } = route.params;
-
+  const handleSpeak = () => {
+    const textToSpeak = `${title}. ${description || ''}. ${content || ''}`;
+    Speech.speak(textToSpeak);
+  };
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Image source={{ uri: imageUrl }} style={styles.image} />
+      <TouchableOpacity onPress={handleSpeak} style={styles.speakerButton}>
+        <Ionicons name="volume-high" size={28} color="#007AFF" />
+      </TouchableOpacity>
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.description}>{description || 'No description available.'}</Text>
       <Text style={styles.content}>{content || 'No additional content available.'}</Text>
