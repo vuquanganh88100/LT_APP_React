@@ -1,4 +1,4 @@
-import { getRequest } from "../config/apiCaller";
+import { getRequest, postRequest } from "../config/apiCaller";
 import { apiPath } from "../config/apiPath";
 
 export const categoryService = {
@@ -11,4 +11,14 @@ export const categoryService = {
             errorCallback
         );
     },
+    
+    addCategory: async (categoryData, successCallback, errorCallback) => {
+        console.log("Adding new category:", categoryData);
+        return await postRequest(
+            apiPath.addCategory,
+            categoryData,
+            successCallback,
+            errorCallback
+        );
+    }
 }

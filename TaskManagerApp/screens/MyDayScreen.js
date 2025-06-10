@@ -7,7 +7,6 @@ import {
   FlatList,
   SafeAreaView,
   StatusBar,
-  Dimensions,
   ActivityIndicator,
   RefreshControl
 } from 'react-native';
@@ -15,42 +14,20 @@ import { Ionicons } from '@expo/vector-icons';
 import { categoryService } from '../service/categoryService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
-
-// Constants
-const { width } = Dimensions.get('window');
-const ITEM_WIDTH = (width - 60) / 2;
-const CATEGORY_ICONS = {
-  'Work': 'briefcase-outline',
-  'Personal': 'person-outline',
-  'Health': 'fitness-outline',
-  'Shopping': 'cart-outline',
-  'Home': 'home-outline',
-  'Education': 'school-outline',
-  'Finance': 'wallet-outline',
-  'Travel': 'airplane-outline',
-  'Other': 'apps-outline'
-};
-
-const COLORS = [
-  ['#FF9966', '#FF5E62'], 
-  ['#56CCF2', '#2F80ED'], 
-  ['#A18CD1', '#FBC2EB'], 
-  ['#84FAB0', '#8FD3F4'], 
-  ['#FCCF31', '#F55555'], 
-  ['#6A11CB', '#2575FC'], 
-  ['#FF9A9E', '#FECFEF'], 
-  ['#43E97B', '#38F9D7']  
-];
+import ModalCategory from '../components/ModalCategory';
+import { ITEM_WIDTH, CATEGORY_ICONS, CATEGORY_COLORS, DATE_FORMATS, UI_COLORS } from '../constants';
 
 const MyDayScreen = ({ navigation }) => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [userId, setUserId] = useState(null);
 
   // Memoize gradients for categories to avoid recalculation
   const getColorGradient = useCallback((index) => {
-    return COLORS[index % COLORS.length];
+    return CATEGORY_COLORS[index % CATEGORY_COLORS.length];
   }, []);
 
   // Get an appropriate icon for the category
@@ -79,6 +56,7 @@ const MyDayScreen = ({ navigation }) => {
       }
 
       const user = JSON.parse(userDataString);
+      setUserId(user.userId);
 
       categoryService.getCategories(
         user.userId,
@@ -121,6 +99,9 @@ const MyDayScreen = ({ navigation }) => {
       (category.doneCount || 0);
   }, []);
 
+  const handleCategoryPress = useCallback((category) => {
+    console.log('Category pressed:', category.name);
+  }, []);
   // Render the category item with improved UI
   const renderCategoryItem = useCallback(({ item }) => (
     <TouchableOpacity
@@ -175,7 +156,11 @@ const MyDayScreen = ({ navigation }) => {
     </TouchableOpacity>
   ), [getTotalTasks, handleCategoryPress]);
 
-  // Render the add button
+  const handleAddCategory = useCallback(() => {
+    console.log('Add new category pressed');
+    setModalVisible(true);
+  }, []);
+
   const renderAddCategoryButton = useCallback(() => (
     <TouchableOpacity
       style={styles.addCategoryButton}
@@ -192,13 +177,19 @@ const MyDayScreen = ({ navigation }) => {
     </TouchableOpacity>
   ), []);
 
-  const handleCategoryPress = useCallback((category) => {
-    console.log('Category pressed:', category.name);
-  }, []);
 
-  const handleAddCategory = useCallback(() => {
-    console.log('Add new category pressed');
-  }, []);
+
+
+  const handleCategoryAdded = useCallback((newCategory) => {
+    console.log('New category added:', newCategory);
+    const styledCategory = {
+      ...newCategory,
+      colorGradient: getColorGradient(categories.length),
+      icon: getCategoryIcon(newCategory.name),
+    };
+    // Update categories with the new one
+    setCategories([...categories, styledCategory]);
+  }, [categories, getColorGradient, getCategoryIcon]);
 
   const renderItems = useCallback(({ item }) => {
     if (item === 'add') {
@@ -285,6 +276,13 @@ const MyDayScreen = ({ navigation }) => {
           />
         )}
       </View>
+
+      <ModalCategory
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        onAddCategory={handleCategoryAdded}
+        userId={userId}
+      />
     </SafeAreaView>
   );
 };
@@ -295,12 +293,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#f8f9fa',
   },
   header: {
-    marginTop:50,
+    marginTop: 50,
     paddingHorizontal: 20,
     paddingTop: 20,
     paddingBottom: 15,
     backgroundColor: 'white',
-    borderRadius:25,
+    borderRadius: 25,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
