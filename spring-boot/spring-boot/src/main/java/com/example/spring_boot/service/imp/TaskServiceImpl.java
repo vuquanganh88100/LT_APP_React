@@ -1,14 +1,18 @@
 package com.example.spring_boot.service.imp;
 
 import com.example.spring_boot.dto.TaskDto;
+import com.example.spring_boot.entity.Priority;
+import com.example.spring_boot.entity.Status;
 import com.example.spring_boot.entity.TaskEntity;
 import com.example.spring_boot.mapper.TaskMapper;
 import com.example.spring_boot.repository.TaskRepository;
 import com.example.spring_boot.service.TaskService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.config.Task;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,7 +38,8 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public TaskDto createTask(TaskDto taskDto) {
         TaskEntity taskEntity=taskMapper.toEntity(taskDto);
-         taskRepository.save(taskEntity);
+        taskEntity.setCreatedAt(LocalDateTime.now());
+        taskRepository.save(taskEntity);
         return taskMapper.toDto(taskEntity);
     }
     public Map<String, Map<String, Integer>> getTaskCountByCategoryAndStatus(Integer userId) {
@@ -63,5 +68,16 @@ public class TaskServiceImpl implements TaskService {
 
         return result;
     }
+
+    @Override
+    public TaskDto updateTask(int taskId, TaskDto dto) {
+        LocalDateTime tempCreated=taskRepository.findById(taskId).get().getCreatedAt();
+        TaskEntity updatedTask = taskMapper.toEntity(dto);
+        updatedTask.setCreatedAt(tempCreated);
+        updatedTask.setTaskId(taskId);
+        taskRepository.save(updatedTask);
+        return taskMapper.toDto(updatedTask);
+    }
+
 
 }

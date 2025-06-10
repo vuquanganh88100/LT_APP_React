@@ -24,7 +24,6 @@ public class TaskMapper {
         taskEntity.setPriority(Priority.valueOf(taskDto.getPriority()));
         taskEntity.setTitle(taskDto.getTitle());
         taskEntity.setStartTime(taskDto.getStartTime());
-        taskEntity.setCreatedAt(LocalDateTime.now());
         taskEntity.setCategory(categoryRepository.findById(taskDto.getCategoryId()).get());
         taskEntity.setUser(userRepository.findById(taskDto.getUserId()).get());
         return taskEntity;
@@ -39,6 +38,7 @@ public class TaskMapper {
         taskDto.setPriority(taskEntity.getPriority().name());
         taskDto.setStartTime(taskEntity.getStartTime());
         taskDto.setUserId(taskEntity.getUser().getUserId());
+        taskDto.setCreatedTime(taskEntity.getCreatedAt());
         return taskDto;
     }
 }

@@ -12,4 +12,5 @@ public interface TaskService {
     List<TaskDto> getTasksByUserId(Integer userId);
     TaskDto createTask(TaskDto taskDto);
     Map<String, Map<String, Integer>> getTaskCountByCategoryAndStatus(Integer userId);
+    TaskDto updateTask(int taskId,TaskDto dto);
 }

@@ -4,25 +4,7 @@ import { taskService } from '../service/taskService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import TimelineHeader from '../components/TimelineHeader';
 import AddTaskModal from '../components/AddTaskModal';
-
-const getStatusColor = (status) => {
-  switch (status) {
-    case 'in_progress':
-      return '#f39c12'; 
-    case 'done':
-      return '#2ecc71'; 
-    case 'pending':
-      return '#95a5a6'; 
-    default:
-      return '#95a5a6';
-  }
-};
-
-const getPriorityStyle = (priority) => {
-  return priority === 'important'
-    ? { backgroundColor: '#e74c3c', color: 'white' }
-    : { backgroundColor: '#3498db', color: 'white' };
-};
+import { getStatusColor, getPriorityStyle } from '../constants/taskConstants';
 
 const TaskList = ({ title, tasks, onAddPress, onTaskPress }) => (
   <View style={styles.section}>
@@ -276,6 +258,7 @@ const AllTaskScreen = () => {
         userId={userId}
         onTaskAdded={handleTaskAdded}
         taskToEdit={taskToEdit}
+        timeType={selectedCategory} // Truyền timeType để xác định ngày mặc định
       />
     </View>
   );

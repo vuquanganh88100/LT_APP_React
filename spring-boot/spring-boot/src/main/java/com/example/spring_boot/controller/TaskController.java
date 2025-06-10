@@ -36,4 +36,13 @@ public class TaskController {
         Map<String,Map<String,Integer>> getTaskCount=taskService.getTaskCountByCategoryAndStatus(userId);
         return ResponseEntity.ok(getTaskCount);
     }
+    @PutMapping("/{taskId}")
+    public ResponseEntity<TaskDto> updateTask(
+            @PathVariable int taskId,
+            @RequestBody TaskDto dto
+    ) {
+        TaskDto updatedTask = taskService.updateTask(taskId, dto);
+        return ResponseEntity.ok(updatedTask);
+    }
+
 }

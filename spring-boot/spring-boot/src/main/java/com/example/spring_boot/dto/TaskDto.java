@@ -17,5 +17,7 @@ public class TaskDto {
     private String priority;
     private String status;
     private LocalDateTime startTime;
+    private LocalDateTime createdTime;
+
     private int userId;
 }

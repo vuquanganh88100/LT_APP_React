@@ -5,7 +5,6 @@ export const taskService = {
     getTask: (userId, successCallback, errorCallback) => {
         console.log("Fetching tasks for user:", userId);
         
-        // Make API request with the userId as a parameter
         return getRequest(
             `${apiPath.getTask}?userId=${userId}`,
             {},
@@ -17,9 +16,8 @@ export const taskService = {
     addTask: (taskData, successCallback, errorCallback) => {
         console.log("Adding new task:", taskData);
         
-        // Make API request to add a new task
         return postRequest(
-            apiPath.getTask, // Assuming the same endpoint is used for POST
+            apiPath.createTask, 
             taskData,
             successCallback,
             errorCallback
@@ -29,7 +27,6 @@ export const taskService = {
     updateTask: (taskData, successCallback, errorCallback) => {
         console.log("Updating task:", taskData);
         
-        // Make API request to update an existing task
         return putRequest(
             `${apiPath.getTask}/${taskData.taskId}`,
             taskData,
