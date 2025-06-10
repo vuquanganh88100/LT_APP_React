@@ -1,5 +1,6 @@
 package com.example.spring_boot.mapper;
 
+import com.example.spring_boot.dto.CategoryDto;
 import com.example.spring_boot.dto.TaskDto;
 import com.example.spring_boot.entity.Priority;
 import com.example.spring_boot.entity.Status;
@@ -24,7 +25,6 @@ public class TaskMapper {
         taskEntity.setPriority(Priority.valueOf(taskDto.getPriority()));
         taskEntity.setTitle(taskDto.getTitle());
         taskEntity.setStartTime(taskDto.getStartTime());
-        taskEntity.setCreatedAt(LocalDateTime.now());
         taskEntity.setCategory(categoryRepository.findById(taskDto.getCategoryId()).get());
         taskEntity.setUser(userRepository.findById(taskDto.getUserId()).get());
         return taskEntity;
@@ -33,12 +33,21 @@ public class TaskMapper {
         TaskDto taskDto = new TaskDto();
         taskDto.setTaskId(taskEntity.getTaskId());
         taskDto.setCategoryId(taskEntity.getCategory().getCategoryId());
+        
+        // Tạo CategoryDto đơn giản để tránh N+1 query
+        CategoryDto categoryDto = new CategoryDto();
+        categoryDto.setCategoryId(taskEntity.getCategory().getCategoryId());
+        categoryDto.setName(taskEntity.getCategory().getName());
+        categoryDto.setUserId(taskEntity.getCategory().getUser().getUserId());
+        taskDto.setCategory(categoryDto);
+        
         taskDto.setTitle(taskEntity.getTitle());
         taskDto.setDescription(taskEntity.getDescription());
         taskDto.setStatus(taskEntity.getStatus().name());
         taskDto.setPriority(taskEntity.getPriority().name());
         taskDto.setStartTime(taskEntity.getStartTime());
         taskDto.setUserId(taskEntity.getUser().getUserId());
+        taskDto.setCreatedTime(taskEntity.getCreatedAt());
         return taskDto;
     }
 }

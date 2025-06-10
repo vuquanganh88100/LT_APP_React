@@ -31,9 +31,26 @@ public class TaskController {
         List<TaskDto> taskDtos = taskService.getTasksByUserId(userId);
         return ResponseEntity.ok(taskDtos);
     }
+    
+    @GetMapping("/by-date")
+    public ResponseEntity<List<TaskDto>> getTasksByDate(
+            @RequestParam int userId,
+            @RequestParam String date) {
+        List<TaskDto> taskDtos = taskService.getTasksByUserIdAndDate(userId, date);
+        return ResponseEntity.ok(taskDtos);
+    }
     @GetMapping("/count")
     public ResponseEntity<Map<String, Map<String, Integer>>> getCountTask(@RequestParam int userId) {
         Map<String,Map<String,Integer>> getTaskCount=taskService.getTaskCountByCategoryAndStatus(userId);
         return ResponseEntity.ok(getTaskCount);
     }
+    @PutMapping("/{taskId}")
+    public ResponseEntity<TaskDto> updateTask(
+            @PathVariable int taskId,
+            @RequestBody TaskDto dto
+    ) {
+        TaskDto updatedTask = taskService.updateTask(taskId, dto);
+        return ResponseEntity.ok(updatedTask);
+    }
+
 }

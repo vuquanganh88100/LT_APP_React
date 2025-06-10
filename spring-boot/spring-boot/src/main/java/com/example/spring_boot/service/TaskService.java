@@ -10,6 +10,8 @@ import java.util.Map;
 @Service
 public interface TaskService {
     List<TaskDto> getTasksByUserId(Integer userId);
+    List<TaskDto> getTasksByUserIdAndDate(Integer userId, String date);
     TaskDto createTask(TaskDto taskDto);
     Map<String, Map<String, Integer>> getTaskCountByCategoryAndStatus(Integer userId);
+    TaskDto updateTask(int taskId,TaskDto dto);
 }

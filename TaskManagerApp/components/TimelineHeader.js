@@ -2,15 +2,20 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
 const TimelineHeader = ({ title, onAddPress }) => {
+  // Ẩn nút thêm task nếu là tab "Before"
+  const showAddButton = title.toLowerCase() !== 'before';
+  
   return (
     <View style={styles.sectionHeader}>
       <Text style={styles.sectionTitle}>{title}</Text>
-      <TouchableOpacity 
-        style={styles.addButton} 
-        onPress={() => onAddPress(title.toLowerCase())}
-      >
-        <Text style={styles.addButtonText}>+</Text>
-      </TouchableOpacity>
+      {showAddButton && (
+        <TouchableOpacity 
+          style={styles.addButton} 
+          onPress={() => onAddPress(title.toLowerCase())}
+        >
+          <Text style={styles.addButtonText}>+</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 };

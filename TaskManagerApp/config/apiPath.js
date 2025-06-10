@@ -7,5 +7,7 @@ export const apiPath={
     addCategory:API_PATH+"/category/create",
     
     //taskAPI
-    getTask:API_PATH+"/task"
+    getTask:API_PATH+"/task",
+    getTaskByDate:API_PATH+"/task/by-date",
+    createTask:API_PATH+"/task/create"
 }
