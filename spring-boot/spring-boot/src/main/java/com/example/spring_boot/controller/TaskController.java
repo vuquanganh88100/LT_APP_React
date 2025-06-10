@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/schedule-manager/task")
@@ -29,5 +30,10 @@ public class TaskController {
     public ResponseEntity<List<TaskDto>> getTask(@RequestParam int userId) {
         List<TaskDto> taskDtos = taskService.getTasksByUserId(userId);
         return ResponseEntity.ok(taskDtos);
+    }
+    @GetMapping("/count")
+    public ResponseEntity<Map<String, Map<String, Integer>>> getCountTask(@RequestParam int userId) {
+        Map<String,Map<String,Integer>> getTaskCount=taskService.getTaskCountByCategoryAndStatus(userId);
+        return ResponseEntity.ok(getTaskCount);
     }
 }

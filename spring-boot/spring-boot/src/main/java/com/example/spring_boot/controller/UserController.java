@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/task/auth")
+@RequestMapping("/schedule-manager/auth")
 public class UserController {
     @Autowired
     private UserService userService;
