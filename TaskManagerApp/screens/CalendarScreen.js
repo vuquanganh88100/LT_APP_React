@@ -5,6 +5,7 @@ import { fetchCalendarEvents, requestCalendarPermission } from '../service/calen
 import { taskService } from '../service/taskService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getStatusColor, getPriorityStyle } from '../constants/taskConstants';
+import { useFocusEffect } from '@react-navigation/native';
 
 const getTodayLocal = () => {
   const today = new Date();
@@ -27,12 +28,34 @@ const CalendarScreen = () => {
     loadEvents();
   }, []);
 
-  // Load tasks for today when user is loaded
-  useEffect(() => {
-    if (user && selectedDate) {
-      loadTasksForDate(selectedDate);
-    }
-  }, [user, loadTasksForDate]);
+  // 🎯 Load tasks for today when screen is focused (tab switch)
+  useFocusEffect(
+    useCallback(() => {
+      const loadInitialData = async () => {
+        // Đảm bảo user đã được load
+        if (!user) {
+          const userData = await AsyncStorage.getItem('user');
+          if (userData) {
+            const parsedUser = JSON.parse(userData);
+            setUser(parsedUser);
+            
+            // Load tasks for today với user vừa load
+            const today = getTodayLocal();
+            if (!selectedDate) {
+              setSelectedDate(today);
+            }
+            loadTasksForDate(today, parsedUser);
+          }
+        } else {
+          // User đã có, load tasks cho ngày hiện tại
+          const currentDate = selectedDate || getTodayLocal();
+          loadTasksForDate(currentDate, user);
+        }
+      };
+      
+      loadInitialData();
+    }, [user, selectedDate])
+  );
 
   const loadUser = async () => {
     try {
@@ -45,12 +68,13 @@ const CalendarScreen = () => {
     }
   };
 
-  const loadTasksForDate = useCallback(async (date) => {
-    if (!user) return;
+  const loadTasksForDate = useCallback(async (date, userParam = null) => {
+    const currentUser = userParam || user;
+    if (!currentUser) return;
     
     try {
       taskService.getTaskByDate(
-        user.userId,
+        currentUser.userId,
         date,
         (data) => {
           console.log('Tasks for date:', date, data);
@@ -154,10 +178,7 @@ const CalendarScreen = () => {
       setSelectedDate(today);
       setSelectedEvents(marked[today]?.events || []);
       
-      // Load tasks for today
-      if (user) {
-        loadTasksForDate(today);
-      }
+      // Load tasks for today sẽ được xử lý trong useFocusEffect
 
     } catch (error) {
       console.error('Lỗi tải sự kiện:', error);
@@ -206,7 +227,7 @@ const CalendarScreen = () => {
     setSelectedEvents(newMarked[dateString]?.events || []);
     
     // Load tasks for selected date
-    loadTasksForDate(dateString);
+    loadTasksForDate(dateString, user);
   }, [markedDates, loadTasksForDate]);
 
   const formatTime = (dateString) => {
