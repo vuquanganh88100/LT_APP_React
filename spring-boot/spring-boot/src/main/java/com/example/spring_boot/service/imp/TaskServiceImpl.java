@@ -94,6 +94,31 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    public Map<String, Map<String, Integer>> getTaskStatisticsForCharts(Integer userId) {
+        List<TaskEntity> taskEntities = taskRepository.findByUserUserId(userId);
+        Map<String, Map<String, Integer>> result = new HashMap<>();
+
+        for (TaskEntity task : taskEntities) {
+            String categoryName = task.getCategory().getName();
+            String status = task.getStatus().name(); // Use .name() method for enum
+            
+            // Initialize category map if not exists
+            result.putIfAbsent(categoryName, new HashMap<>());
+            Map<String, Integer> statusMap = result.get(categoryName);
+            
+            // Initialize status counts only if they don't exist
+            statusMap.putIfAbsent("pending", 0);
+            statusMap.putIfAbsent("done", 0);
+            statusMap.putIfAbsent("in_progress", 0);
+
+            // Increment count for current task's status
+            statusMap.put(status, statusMap.get(status) + 1);
+        }
+
+        return result;
+    }
+
+    @Override
     public TaskDto updateTask(int taskId, TaskDto dto) {
         LocalDateTime tempCreated=taskRepository.findById(taskId).get().getCreatedAt();
         TaskEntity updatedTask = taskMapper.toEntity(dto);

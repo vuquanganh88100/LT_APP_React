@@ -9,5 +9,9 @@ export const apiPath={
     //taskAPI
     getTask:API_PATH+"/task",
     getTaskByDate:API_PATH+"/task/by-date",
-    createTask:API_PATH+"/task/create"
+    createTask:API_PATH+"/task/create",
+    
+    //statistics API
+    getTaskStatsByCategory:API_PATH+"/task/statistics",
+    getTaskStatsByStatus:API_PATH+"/task/statistics"
 }

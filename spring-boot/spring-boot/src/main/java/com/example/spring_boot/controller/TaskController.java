@@ -44,6 +44,12 @@ public class TaskController {
         Map<String,Map<String,Integer>> getTaskCount=taskService.getTaskCountByCategoryAndStatus(userId);
         return ResponseEntity.ok(getTaskCount);
     }
+    
+    @GetMapping("/statistics")
+    public ResponseEntity<Map<String, Map<String, Integer>>> getTaskStatistics(@RequestParam int userId) {
+        Map<String,Map<String,Integer>> statistics = taskService.getTaskStatisticsForCharts(userId);
+        return ResponseEntity.ok(statistics);
+    }
     @PutMapping("/{taskId}")
     public ResponseEntity<TaskDto> updateTask(
             @PathVariable int taskId,
