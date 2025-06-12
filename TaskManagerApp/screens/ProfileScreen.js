@@ -13,6 +13,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import authService from '../service/authService';
+import { simpleNotificationService } from '../service/simpleNotificationService';
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
@@ -64,6 +65,88 @@ const ProfileScreen = () => {
       { cancelable: true }
     );
   };
+
+  // 🔔 Test notification function
+  const handleTestNotification = async () => {
+    try {
+      const success = await simpleNotificationService.sendImmediateNotification(
+        '🔔 Test Notification',
+        'Chức năng thông báo đang hoạt động bình thường!',
+        { type: 'test' }
+      );
+      
+      if (success) {
+        Alert.alert('✅ Thành công', 'Thông báo test đã được gửi!');
+      } else {
+        Alert.alert('❌ Lỗi', 'Không thể gửi thông báo test');
+      }
+    } catch (error) {
+      console.error('Error testing notification:', error);
+      Alert.alert('❌ Lỗi', 'Có lỗi xảy ra khi test thông báo');
+    }
+  };
+
+  // 📋 View scheduled notifications
+  const handleViewScheduledNotifications = async () => {
+    try {
+      const notifications = await simpleNotificationService.getScheduledNotifications();
+      const count = notifications.length;
+      
+      Alert.alert(
+        '📋 Thông báo đã lên lịch',
+        `Hiện có ${count} thông báo đã được lên lịch`,
+        [
+          { text: 'OK', style: 'default' },
+          {
+            text: 'Debug',
+            style: 'default',
+            onPress: async () => {
+              await simpleNotificationService.debugScheduledNotifications();
+              Alert.alert('🔍 Debug', 'Kiểm tra console để xem chi tiết');
+            }
+          },
+          {
+            text: 'Clean Past',
+            style: 'default',
+            onPress: async () => {
+              const cleaned = await simpleNotificationService.cleanupPastNotifications();
+              Alert.alert('🧹 Cleaned', `Đã xóa ${cleaned} thông báo cũ`);
+            }
+          },
+          {
+            text: 'FORCE CLEAR',
+            style: 'destructive',
+            onPress: async () => {
+              const success = await simpleNotificationService.forceClearAndDisable();
+              Alert.alert(
+                success ? '✅ FORCE CLEAR' : '❌ Lỗi', 
+                success ? 'Đã xóa TẤT CẢ notifications và disable auto-scheduling' : 'Có lỗi xảy ra'
+              );
+            }
+          },
+          {
+            text: 'Hủy tất cả',
+            style: 'destructive',
+            onPress: async () => {
+              await simpleNotificationService.cancelAllNotifications();
+              Alert.alert('✅ Đã hủy', 'Đã hủy tất cả thông báo đã lên lịch');
+            }
+          }
+        ]
+      );
+    } catch (error) {
+      console.error('Error viewing notifications:', error);
+      Alert.alert('❌ Lỗi', 'Không thể xem thông báo đã lên lịch');
+    }
+  };
+
+
+
+
+
+
+
+
 
   if (loading) {
     return (
@@ -143,6 +226,20 @@ const ProfileScreen = () => {
             <Text style={styles.actionText}>Settings</Text>
             <Ionicons name="chevron-forward" size={20} color="#ccc" />
           </TouchableOpacity>
+
+          <TouchableOpacity style={styles.actionItem} onPress={handleTestNotification}>
+            <Ionicons name="notifications-outline" size={24} color="#007bff" style={styles.actionIcon} />
+            <Text style={[styles.actionText, { color: '#007bff' }]}>Test Notification</Text>
+            <Ionicons name="chevron-forward" size={20} color="#ccc" />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.actionItem} onPress={handleViewScheduledNotifications}>
+            <Ionicons name="time-outline" size={24} color="#28a745" style={styles.actionIcon} />
+            <Text style={[styles.actionText, { color: '#28a745' }]}>Scheduled Notifications</Text>
+            <Ionicons name="chevron-forward" size={20} color="#ccc" />
+          </TouchableOpacity>
+
+
 
           <TouchableOpacity style={styles.actionItem}>
             <Ionicons name="help-circle-outline" size={24} color="#555" style={styles.actionIcon} />

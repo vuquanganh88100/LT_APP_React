@@ -1,10 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, TouchableOpacity, Alert } from 'react-native';
 import { taskService } from '../service/taskService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import TimelineHeader from '../components/TimelineHeader';
 import AddTaskModal from '../components/AddTaskModal';
 import { getStatusColor, getPriorityStyle } from '../constants/taskConstants';
+import { simpleNotificationService } from '../service/simpleNotificationService';
+import { Ionicons } from '@expo/vector-icons';
 
 const TaskList = ({ title, tasks, onAddPress, onTaskPress }) => (
   <View style={styles.section}>
@@ -110,6 +112,9 @@ const AllTaskScreen = () => {
           // Sort tasks by startTime
           formattedTasks.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
           
+          // 🔔 Tự động lên lịch thông báo cho các task
+          simpleNotificationService.scheduleMultipleTaskNotifications(formattedTasks);
+          
           resolve(formattedTasks);
         },
         (error) => {
@@ -211,6 +216,36 @@ const AllTaskScreen = () => {
     }
   };
 
+  // 🚫 FORCE CLEAR notifications
+  const handleForceClear = async () => {
+    Alert.alert(
+      '🚫 FORCE CLEAR',
+      'Xóa TẤT CẢ notifications (scheduled + delivered)?',
+      [
+        {
+          text: 'Hủy',
+          style: 'cancel'
+        },
+        {
+          text: '🚫 FORCE CLEAR',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const success = await simpleNotificationService.forceClearAndDisable();
+              Alert.alert(
+                success ? '✅ CLEARED' : '❌ Lỗi',
+                success ? 'Đã xóa TẤT CẢ notifications!' : 'Có lỗi xảy ra'
+              );
+            } catch (error) {
+              console.error('Error force clearing:', error);
+              Alert.alert('❌ Lỗi', 'Không thể force clear');
+            }
+          }
+        }
+      ]
+    );
+  };
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -260,6 +295,15 @@ const AllTaskScreen = () => {
         taskToEdit={taskToEdit}
         timeType={selectedCategory} // Truyền timeType để xác định ngày mặc định
       />
+      
+      {/* Floating FORCE CLEAR button */}
+      <TouchableOpacity 
+        style={styles.floatingButton}
+        onPress={handleForceClear}
+      >
+        <Ionicons name="trash-outline" size={24} color="white" />
+        <Text style={styles.floatingButtonText}>CLEAR</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -351,6 +395,28 @@ const styles = StyleSheet.create({
     color: '#e74c3c',
     fontSize: 16,
     textAlign: 'center',
+  },
+  floatingButton: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    backgroundColor: '#dc3545',
+    borderRadius: 30,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  floatingButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    marginLeft: 8,
+    fontSize: 12,
   },
 });
 

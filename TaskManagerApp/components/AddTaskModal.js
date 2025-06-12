@@ -11,6 +11,7 @@ import {
 import { categoryService } from '../service/categoryService';
 import { taskService } from '../service/taskService';
 import { getStatusColor, getPriorityStyle } from '../constants/taskConstants';
+import { simpleNotificationService } from '../service/simpleNotificationService';
 
 const AddTaskModal = ({ 
   visible, 
@@ -158,12 +159,34 @@ const AddTaskModal = ({
     if (isEditMode && taskId) {
       taskData.taskId = taskId;
       taskService.updateTask(taskData, 
-        (response) => { handleClose(); onTaskAdded && onTaskAdded(); },
+        async (response) => { 
+          // 🔔 Lên lịch thông báo cho task đã update
+          await simpleNotificationService.scheduleTaskNotification({
+            id: taskId,
+            title: taskData.title,
+            startTime: taskData.startTime
+          });
+          
+          handleClose(); 
+          onTaskAdded && onTaskAdded(); 
+        },
         (error) => alert('Failed to update task. Please try again.'),
       );
     } else {
       taskService.addTask(taskData,
-        (response) => { handleClose(); onTaskAdded && onTaskAdded(); },
+        async (response) => { 
+          // 🔔 Lên lịch thông báo cho task mới tạo
+          if (response && response.taskId) {
+            await simpleNotificationService.scheduleTaskNotification({
+              id: response.taskId,
+              title: taskData.title,
+              startTime: taskData.startTime
+            });
+          }
+          
+          handleClose(); 
+          onTaskAdded && onTaskAdded(); 
+        },
         (error) => alert('Failed to add task. Please try again.')
       );
     }
