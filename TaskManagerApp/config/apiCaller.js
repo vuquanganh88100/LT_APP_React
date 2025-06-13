@@ -1,9 +1,7 @@
 import axios from 'axios';
 
-// const BASE_URL = 'http://10.130.95.168:8484'; // Trường
-// const BASE_URL = 'http://10.9.35.213:8484';  // Trường (IP khác)
-const BASE_URL = 'http://192.168.1.46:8484';     // Nhà (IP mạng local) - ACTIVE
-// const BASE_URL = 'http://192.168.1.46:8484'; // Nhà (IP mạng local) 
+const BASE_URL = 'http://192.168.90.100:8484'; 
+// const BASE_URL = 'http://10.9.35.213:8484'; 
 
 const instance = axios.create({
   baseURL: BASE_URL,
